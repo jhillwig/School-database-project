@@ -1,0 +1,11 @@
+<footer class="py-3 mt-4">
+  <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-mortarboard-fill text-warning me-1"></i> University Portal - Academic Management System</span>
+    <span>
+      {% if session.get('role') %}
+        Signed in as <strong class="text-light">{{ session.get('username') }}</strong>
+        <span class="text-warning">{{ session.get('role')|capitalize }}</span>
+      {% endif %}
+    </span>
+  </div>
+</footer>

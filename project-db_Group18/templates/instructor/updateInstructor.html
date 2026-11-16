@@ -1,0 +1,114 @@
+<!-- Updates personal info except ID -->
+{% extends "include/base.html" %}
+{% set active = "profile" %}
+{% block title %}My Profile{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">My Instructor Profile</h2>
+<p><h2 class="page-sub mb-4">Update your personal information. Your instructor ID and salary cannot be changed.</h2>
+ 
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card mb-4">
+      <div class="card-header fw-bold">Personal Information</div>
+      <div class="card-body">
+        {% if success %}
+        <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Profile updated successfully.</div>
+        {% endif %}
+ 
+        <form method="POST" action="/instructor/profile" onsubmit="return checkPw()">
+          <!-- READ-ONLY FIELDS -->
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Instructor ID <span class="text-muted">(cannot change)</span></label>
+              <input type="text" class="form-control bg-light" value="{{ instructor.i_ID if instructor else session.get('user_id') }}" readonly>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Salary <span class="text-muted">(cannot change)</span></label>
+              <input type="text" class="form-control bg-light"
+                     value="${{ '{:,.2f}'.format(instructor.salary) if instructor else '—' }}" readonly>
+            </div>
+          </div>
+ 
+          <!-- EDITABLE FIELDS -->
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Name</label>
+              <input type="text" class="form-control" name="name"
+                     value="{{ instructor.name if instructor else '' }}" maxlength="20" required>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Department</label>
+              <select class="form-select" name="dept" required>
+                {% for d in depts %}
+                <option value="{{ d }}" {% if instructor and d == instructor.dept_name %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+ 
+          <hr>
+          <p class="text-muted small mb-3">Update your login credentials below. Leave blank to keep current values.</p>
+ 
+          <div class="row g-3 mb-3">
+            <div class="col-sm-12">
+              <label class="form-label fw-semibold">Username</label>
+              <input type="text" class="form-control" name="username"
+                     value="{{ session.get('username') }}" maxlength="30">
+              <div class="form-text">Leave blank to keep current username.</div>
+            </div>
+          </div>
+ 
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">New Password</label>
+              <input type="password" class="form-control" name="new_password"
+                     id="newPw" placeholder="Enter new password">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Confirm New Password</label>
+              <input type="password" class="form-control"
+                     id="confirmPw" placeholder="Confirm new password">
+            </div>
+          </div>
+ 
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy me-2"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+ 
+    <!-- INFO CARD -->
+    <div class="card">
+      <div class="card-header fw-bold">Account Summary</div>
+      <div class="card-body">
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr><th style="width:40%">Instructor ID</th><td><code>{{ instructor.i_ID if instructor else '—' }}</code></td></tr>
+            <tr><th>Name</th><td>{{ instructor.name if instructor else '—' }}</td></tr>
+            <tr><th>Department</th><td><span class="badge bg-warning text-dark">{{ instructor.dept_name if instructor else '—' }}</span></td></tr>
+            <tr><th>Salary</th><td>${{ '{:,.2f}'.format(instructor.salary) if instructor else '—' }}</td></tr>
+            <tr><th>Username</th><td>{{ session.get('username') }}</td></tr>
+            <tr><th>Role</th><td><span class="badge bg-info text-dark">Instructor</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ 
+{% block scripts %}
+<script>
+function checkPw() {
+  const np = document.getElementById('newPw').value;
+  const cp = document.getElementById('confirmPw').value;
+  if (np && np !== cp) {
+    alert('Passwords do not match!');
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}

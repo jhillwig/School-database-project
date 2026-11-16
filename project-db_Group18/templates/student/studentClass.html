@@ -1,0 +1,128 @@
+<!-- Student register & drop -->
+{% extends "include/base.html" %}
+{% set active = "classes" %}
+{% block title %}My Classes{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">My Classes - Register & Drop</h2>
+<p><h2 class="page-sub mb-4">View your enrolled classes, register for new sections, or drop existing ones.</h2>
+ 
+<!-- CURRENTLY ENROLLED -->
+<div class="card mb-4">
+  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+    Currently Enrolled
+    <span class="badge bg-primary">{{ my_classes|length }} class{{ 'es' if my_classes|length != 1 }}</span>
+  </div>
+  {% if my_classes %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Section ID</th><th>Course</th><th>Title</th><th>Credits</th>
+          <th>Semester</th><th>Year</th><th>Location</th><th>Time</th><th>Grade</th><th>Drop</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for c in my_classes %}
+      <tr>
+        <td><code>{{ c.sec_ID }}</code></td>
+        <td><code>{{ c.course_ID }}</code></td>
+        <td>{{ c.title }}</td>
+        <td>{{ c.credits }}</td>
+        <td><span class="badge bg-info text-dark">{{ c.semester }}</span></td>
+        <td>{{ c.year or '—' }}</td>
+        <td>{{ (c.building ~ ' ' ~ c.room_number) if c.building else '—' }}</td>
+        <td>
+          {% if c.start_hr is not none and c.end_hr is not none %}
+            Day {{ c.day }} {{ "%02d"|format(c.start_hr|int) }}:00 - {{ "%02d"|format(c.end_hr|int) }}:00
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if c.grade %}
+            <span class="fw-bold
+              {% if c.grade.startswith('A') %}text-success
+              {% elif c.grade.startswith('B') %}text-primary
+              {% elif c.grade.startswith('C') %}text-warning
+              {% else %}text-danger{% endif %}">{{ c.grade }}</span>
+          {% else %}
+            <span class="badge bg-secondary">In Progress</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="/student/classes">
+            <input type="hidden" name="action" value="drop">
+            <input type="hidden" name="sec_id" value="{{ c.sec_ID }}">
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Drop {{ c.title }} ({{ c.sec_ID }})? This cannot be undone.')">
+              Drop
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">
+    You are not currently enrolled in any classes.
+  </div>
+  {% endif %}
+</div>
+ 
+<!-- AVAILABLE SECTIONS TO REGISTER -->
+<div class="card">
+  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+    Available Sections - Register
+    <span class="badge bg-success">{{ available|length }} available</span>
+  </div>
+  {% if available %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Section ID</th><th>Course</th><th>Title</th><th>Credits</th>
+          <th>Dept</th><th>Semester</th><th>Year</th><th>Location</th><th>Day</th><th>Time</th><th>Register</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in available %}
+      <tr class="{{ 'table-light text-muted' if s.sec_ID in enrolled_ids }}">
+        <td><code>{{ s.sec_ID }}</code></td>
+        <td><code>{{ s.course_ID }}</code></td>
+        <td>{{ s.title }}</td>
+        <td>{{ s.credits }}</td>
+        <td><span class="badge bg-warning text-dark">{{ s.dept_name }}</span></td>
+        <td><span class="badge bg-info text-dark">{{ s.semester }}</span></td>
+        <td>{{ s.year }}</td>
+        <td>{{ (s.building ~ ' ' ~ s.room_number) if s.building else '—' }}</td>
+        <td>{{ s.day or '—' }}</td>
+        <td>
+          {% if s.start_hr is not none and s.end_hr is not none %}
+            {{ "%02d"|format(s.start_hr|int) }}:00 - {{ "%02d"|format(s.end_hr|int) }}:00
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if s.sec_ID in enrolled_ids %}
+            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enrolled</span>
+          {% else %}
+            <form method="POST" action="/student/classes">
+              <input type="hidden" name="action" value="register">
+              <input type="hidden" name="sec_id" value="{{ s.sec_ID }}">
+              <button type="submit" class="btn btn-success btn-sm"
+                onclick="return confirm('Register for {{ s.title }} ({{ s.sec_ID }})?')">
+                Register
+              </button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">No sections available at this time.</div>
+  {% endif %}
+</div>
+{% endblock %}

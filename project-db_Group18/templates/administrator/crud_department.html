@@ -1,0 +1,76 @@
+{% extends "include/base.html" %}
+{% block title %}Manage Departments{% endblock %}
+ 
+{% block content %}
+<h2 class="fw-bold mb-1">Manage Departments</h2>
+<p><h2 class="text-body-secondary mb-4">Add, edit, or remove departments.</h2>
+ 
+<div class="card mb-4">
+  <div class="card-header fw-bold">Add New Department</div>
+  <div class="card-body">
+    <form method="POST" action="/admin/department">
+      <input type="hidden" name="action" value="add">
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-4">
+          <label class="form-label fw-semibold">Department Name</label>
+          <input type="text" class="form-control" name="dept_name" maxlength="20" placeholder="e.g. Physics" required>
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label fw-semibold">Building</label>
+          <input type="text" class="form-control" name="building" maxlength="15" placeholder="e.g. Science Hall">
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label fw-semibold">Budget ($)</label>
+          <input type="number" class="form-control" name="budget" min="0" step="0.01" placeholder="100000">
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-success w-100">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<div class="card">
+  <div class="card-header fw-bold">All Departments ({{ data|length }})</div>
+  {% if data %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr><th>Department Name</th><th>Building</th><th>Budget</th><th>Edit</th><th>Delete</th></tr>
+      </thead>
+      <tbody>
+      {% for row in data %}
+      <tr>
+        <td><strong>{{ row.dept_name }}</strong></td>
+        <td>{{ row.building or '—' }}</td>
+        <td>${{ "{:,.2f}".format(row.budget|float) }}</td>
+        <td>
+          <form method="POST" action="/admin/department" class="d-flex gap-1 flex-wrap">
+            <input type="hidden" name="action"    value="update">
+            <input type="hidden" name="dept_name" value="{{ row.dept_name }}">
+            <input type="text" class="form-control form-control-sm" name="building"
+                   value="{{ row.building or '' }}" maxlength="15" placeholder="Building" style="width:130px">
+            <input type="number" class="form-control form-control-sm" name="budget"
+                   value="{{ row.budget }}" min="0" step="0.01" style="width:130px">
+            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+          </form>
+        </td>
+        <td>
+          <form method="POST" action="/admin/department">
+            <input type="hidden" name="action"    value="delete">
+            <input type="hidden" name="dept_name" value="{{ row.dept_name }}">
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Delete department {{ row.dept_name }}?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">No departments found.</div>
+  {% endif %}
+</div>
+{% endblock %}

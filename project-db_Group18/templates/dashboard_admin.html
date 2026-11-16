@@ -1,0 +1,117 @@
+<!-- Logged in as Admin -->
+{% extends "include/base.html" %}
+{% set active = "dashboard" %}
+{% block title %}Admin Dashboard{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1"><i class="bi bi-speedometer2 me-2 text-warning"></i>Administrator Dashboard</h2>
+<p> <h2 class="page-sub mb-4">Welcome back, <strong>{{ session.get('username') }}</strong>. Here is a system overview.</h2>
+ 
+<!-- STATS -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-md-4 col-lg-2">
+    <div class="card stat-card border-primary p-3">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem; letter-spacing:1px;">Instructors</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ stats.instructors }}</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4 col-lg-2">
+    <div class="card stat-card border-success p-3">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem; letter-spacing:1px;">Students</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ stats.students }}</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4 col-lg-2">
+    <div class="card stat-card border-warning p-3">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem; letter-spacing:1px;">Courses</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ stats.courses }}</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4 col-lg-2">
+    <div class="card stat-card border-info p-3">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem; letter-spacing:1px;">Sections</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ stats.sections }}</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4 col-lg-2">
+    <div class="card stat-card border-danger p-3">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem; letter-spacing:1px;">Departments</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ stats.departments }}</div>
+    </div>
+  </div>
+</div>
+ 
+<!-- QUICK ACTIONS -->
+<div class="card mb-4">
+  <div class="card-header">Quick Actions</div>
+  <div class="card-body d-flex flex-wrap gap-2">
+    <a href="/admin/instructor" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i>Add Instructor</a>
+    <a href="/admin/student"    class="btn btn-success btn-sm"><i class="bi bi-person-plus me-1"></i>Add Student</a>
+    <a href="/admin/course"     class="btn btn-warning btn-sm"><i class="bi bi-book me-1"></i>Add Course</a>
+    <a href="/admin/section"    class="btn btn-info btn-sm text-white"><i class="bi bi-layout-text-window me-1"></i>Add Section</a>
+    <a href="/admin/department" class="btn btn-secondary btn-sm"><i class="bi bi-building me-1"></i>Add Department</a>
+    <a href="/admin/timeslot"   class="btn btn-dark btn-sm"><i class="bi bi-clock me-1"></i>Add Time Slot</a>
+    <a href="/admin/assign"     class="btn btn-danger btn-sm"><i class="bi bi-diagram-3 me-1"></i>Assign Instructor</a>
+    <a href="/admin/queries"    class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart-line me-1"></i>Reports & Queries</a>
+  </div>
+</div>
+ 
+<!-- RECENT TABLES -->
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        Recent Instructors
+        <a href="/admin/instructor" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      {% if recent_instructors %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark"><tr><th>ID</th><th>Name</th><th>Dept</th><th>Salary</th></tr></thead>
+          <tbody>
+          {% for i in recent_instructors %}
+          <tr>
+            <td><code>{{ i.i_ID }}</code></td>
+            <td>{{ i.name }}</td>
+            <td><span class="badge bg-warning text-dark">{{ i.dept_name }}</span></td>
+            <td>${{ "{:,.0f}".format(i.salary|float) }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body text-center text-body-secondary">No instructors yet.</div>
+      {% endif %}
+    </div>
+  </div>
+ 
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        Recent Students
+        <a href="/admin/student" class="btn btn-sm btn-outline-secondary">View All</a>
+      </div>
+      {% if recent_students %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark"><tr><th>ID</th><th>Name</th><th>Dept</th><th>Credits</th></tr></thead>
+          <tbody>
+          {% for s in recent_students %}
+          <tr>
+            <td><code>{{ s.s_ID}}</code></td>
+            <td>{{ s.name }}</td>
+            <td><span class="badge bg-primary">{{ s.dept_name }}</span></td>
+            <td>{{ s.tot_cred }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body text-center text-body-secondary">No students yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

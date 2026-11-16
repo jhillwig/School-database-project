@@ -1,0 +1,49 @@
+{% extends '/include/layout.html' %}
+
+{% block content %}
+    <div class="container"> 
+        <h1>
+            Student Schedule:
+        </h1>
+    </div>
+    <div class = "container">
+		<form action="/schedule" method = "POST">
+			<div class="mb-3">
+				<label for="years">Choose a Year:</label>
+
+                <select name="years" id="years">
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}                  
+                </select>
+			</div>
+            <input type="hidden", name="StudentID", id = "StudentID" value="{{ studentID }}" >
+            <input type = "submit">
+		</form>
+
+
+
+        {% if data|length  > 0 %}        
+            <table  cellpadding="5" cellspacing="5" class="table table-hover">
+                <tr><th>ID</th><th>Course ID</th><th>Section ID</th><th>Semester</th><th>Year</th><th>Grade</th></tr>	
+                {% for row in data %}
+                <tr>
+                    {% for d in row %}
+                    <td>{{d}}</td>
+                    
+                    {% endfor %}
+                    
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <div class="container"> 
+        <h1>
+            No faculty members to show
+        </h1>
+    </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

@@ -1,0 +1,82 @@
+<!-- Add/Removes student as Advisor -->
+{% extends "include/base.html" %}
+{% set active = "advisor" %}
+{% block title %}Manage Advisees{% endblock %}
+ 
+{% block content %}
+<div class="page-header">
+    <h1> Manage Advisees</h1>
+    <p><h2> Add or remove students from your advisor list. </h2>
+</div>
+ 
+<div class="two-col">
+    <!-- ADD ADVISEE -->
+    <div class="card">
+        <div class="card-header"><h2> Add Student as Advisee</h2></div>
+        <div class="card-body">
+            <form method="POST" action="/instructor/advisor">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label>Select Student</label>
+                    <select name="s_id" required>
+                        <option value="">— Choose a student —</option>
+                        {% set advisee_ids = advisees | map(attribute=0) | list %}
+                        {% for s in all_students %}
+                        {% if s.s_ID not in advisee_ids %}
+                        <option value="{{ s.s_ID }}">{{ s.s_ID }} {{ s.name }} ({{ s.dept_name }})</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success"> Add Advisee</button>
+            </form>
+        </div>
+    </div>
+ 
+    <!-- STATS -->
+    <div class="card">
+        <div class="card-header"><h2>Advisee Summary</h2></div>
+        <div class="card-body">
+            <div class="stat-card green" style="margin:0;">
+                <div class="stat-label">Total Advisees</div>
+                <div class="stat-value">{{ advisees|length }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<!-- CURRENT ADVISEES -->
+<div class="card">
+    <div class="card-header"><h2>My Advisees ({{ advisees|length }})</h2></div>
+    <div class="table-wrap">
+        {% if advisees %}
+        <table>
+            <thead>
+                <tr><th>Student ID</th><th>Name</th><th>Department</th><th>Credits</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+            {% for s in advisees %}
+            <tr>
+                <td class="mono">{{ s.s_ID }}</td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td><span class="badge badge-blue">{{ s.dept_name }}</span></td>
+                <td class="mono">{{ s.tot_cred }}</td>
+                <td>
+                    <form method="POST" action="/instructor/advisor" class="inline">
+                        <input type="hidden" name="action" value="remove">
+                        <input type="hidden" name="s_id"   value="{{ s.s_ID }}">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Remove student {{ s.s_ID }}?')">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+    <div class="card-body text-center text-body-secondary">No advisees yet.</div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+ 

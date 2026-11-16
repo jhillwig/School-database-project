@@ -1,0 +1,30 @@
+{% extends 'include/layout.html' %}
+{% block content %}
+	<div class ="container">
+		<form action="/newfaculty" method = "POST">
+			<p><h2>New Faculty:</h2> 
+			<div class="mb-3">
+				<label for="formGroupExampleInput" class="form-label">Name</label>
+				<input type="text" class="form-control" id="formGroupExampleInput" placeholder="Name" name = "name">
+			</div>
+			<div class="mb-3">
+				<label for="formGroupExampleInput2" class="form-label">ID</label>
+				<input type="text" class="form-control" id="formGroupExampleInput2" placeholder="ID" name = "id">
+			</div>
+			<div class="mb-3">
+				<label for="depts">Choose a Department:</label>
+
+                <select name="dept" id="dept">
+                    {% for dept in data %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                    {% endfor %}                  
+                </select>
+			</div>
+			<div class="mb-3">
+				<label for="formGroupExampleInput2" class="form-label">Salary</label>
+				<input type="text" class="form-control" id="formGroupExampleInput2" placeholder="Salary" name = "salary">
+			</div>			
+			<button type="submit" class="btn btn-primary">Create New</button>
+		</form>
+	</div>
+{% endblock %}

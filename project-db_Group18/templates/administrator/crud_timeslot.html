@@ -1,0 +1,93 @@
+<!-- Admin create, read, update, delete Time Slot -->
+ {% extends "include/base.html" %}
+{% block title %}Manage Time Slots{% endblock %}
+ 
+{% block content %}
+<h2 class="fw-bold mb-1">Manage Time Slots</h2>
+<p><h2 class="text-body-secondary mb-4">Day codes: M = Monday, T = Tuesday, W = Wednesday, R = Thursday, F = Friday.</h2>
+ 
+<div class="card mb-4">
+  <div class="card-header fw-bold">Add New Time Slot</div>
+  <div class="card-body">
+    <form method="POST" action="/admin/timeslot">
+      <input type="hidden" name="action" value="add">
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-2">
+          <label class="form-label fw-semibold">Slot ID</label>
+          <input type="text" class="form-control" name="ts_id" maxlength="4" placeholder="TS01" required>
+        </div>
+        <div class="col-sm-2">
+          <label class="form-label fw-semibold">Day</label>
+          <select class="form-select" name="day" required>
+            <option value="M">M — Monday</option>
+            <option value="T">T — Tuesday</option>
+            <option value="W">W — Wednesday</option>
+            <option value="R">R — Thursday</option>
+            <option value="F">F — Friday</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label class="form-label fw-semibold">Start Hour</label>
+          <input type="number" class="form-control" name="start_hr" min="0" max="23" value="8" required>
+        </div>
+        <div class="col-sm-2">
+          <label class="form-label fw-semibold">End Hour</label>
+          <input type="number" class="form-control" name="end_hr" min="0" max="23" value="10" required>
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-success w-100">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<div class="card">
+  <div class="card-header fw-bold">All Time Slots ({{ data|length }})</div>
+  {% if data %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr><th>Slot ID</th><th>Day</th><th>Start</th><th>End</th><th>Edit</th><th>Delete</th></tr>
+      </thead>
+      <tbody>
+      {% for row in data %}
+      <tr>
+        <td><code>{{ row.time_slot_ID }}</code></td>
+        <td><span class="badge bg-secondary">{{ row.day }}</span></td>
+        <td>{{ row.start_hr }}:00</td>
+        <td>{{ row.end_hr }}:00</td>
+        <td>
+          <form method="POST" action="/admin/timeslot" class="d-flex gap-1 flex-wrap">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="ts_id"  value="{{ row.time_slot_ID }}">
+            <select class="form-select form-select-sm" name="day" style="width:80px">
+              {% for d in ['M','T','W','R','F'] %}
+              <option value="{{ d }}" {% if d == row.day %}selected{% endif %}>{{ d }}</option>
+              {% endfor %}
+            </select>
+            <input type="number" class="form-control form-control-sm" name="start_hr"
+                   value="{{ row.start_hr }}" min="0" max="23" style="width:65px">
+            <input type="number" class="form-control form-control-sm" name="end_hr"
+                   value="{{ row.end_hr }}" min="0" max="23" style="width:65px">
+            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+          </form>
+        </td>
+        <td>
+          <form method="POST" action="/admin/timeslot">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="ts_id"  value="{{ row.time_slot_ID }}">
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Delete time slot {{ row.time_slot_ID }}?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">No time slots found.</div>
+  {% endif %}
+</div>
+{% endblock %}

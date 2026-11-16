@@ -1,0 +1,44 @@
+Checklist for assignment
+* = complete
+! = started but incomplete
+# = incomplete
+
+Other:
+! navbar
+* footer
+* index
+
+
+Login/Logout (username & password):
+* As administrator
+* As Instructor
+* As student
+
+Admin (CRUD: Create, Read, Update, & Deletes):
+* CRUD course
+* CRUD section
+* CRUD classroom
+* CRUD department
+* CRUD time slot
+* CRUD Instructor
+* CRUD Student
+* Assign/Modify/Remove teachers to class
+* Modifying admin info except ID
+
+
+Instructor:
+* Submit/Change Grades
+* Add/Remove students as advisor
+* Modify course prereqs
+* Remove student from section
+* Search section roster
+* Search sections being taught by teacher based on semester
+* Modifying teacher info except ID
+
+
+Student:
+* Register/Drop classes
+* Search final grade, course based on semester, section info 
+(Move searchSemester into studentSearch)
+* Search advisor info
+* Modify student info except ID

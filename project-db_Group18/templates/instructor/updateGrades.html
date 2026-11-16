@@ -1,0 +1,95 @@
+{% extends "include/base.html" %}
+{% set active = "grades" %}
+{% block title %}Submit / Change Grades{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-1">Submit & Change Grades</h2>
+
+<!-- SECTION SELECT -->
+<div class="card mb-4">
+  <div class="card-header fw-bold">Step 1 - Select a Section</div>
+  <div class="card-body">
+    <form method="POST" action="/instructor/grades">
+      <input type="hidden" name="action" value="load">
+
+      <select class="form-select" name="sec_id" required>
+        <option value="">-- Choose --</option>
+        {% for s in my_sections %}
+        <option value="{{ s.sec_ID }}"
+          {% if sec_id is defined and sec_id == s.sec_ID %}selected{% endif %}>
+          {{ s.sec_ID }} | {{ s.course_ID }} - {{ s.semester }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <button class="btn btn-primary mt-2">Load Students</button>
+    </form>
+  </div>
+</div>
+
+<!-- STUDENTS -->
+{% if students is defined %}
+<div class="card">
+  <div class="card-header fw-bold">Step 2 - Assign Grades (Section {{ sec_id }})</div>
+
+  {% if students %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Current</th>
+          <th>New Grade</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for s in students %}
+      <tr>
+        <td><code>{{ s.s_ID }}</code></td>
+        <td>{{ s.name }}</td>
+        <td><span class="badge bg-primary">{{ s.dept_name }}</span></td>
+
+        <td>
+          {% if s.grade %}
+            {{ s.grade }}
+          {% else %}
+            <span class="badge bg-secondary">Not graded</span>
+          {% endif %}
+        </td>
+
+        <td>
+          <form method="POST" action="/instructor/grades" class="d-flex gap-1">
+            <input type="hidden" name="action" value="submit">
+            <input type="hidden" name="sec_id" value="{{ sec_id }}">
+            <input type="hidden" name="s_id" value="{{ s.s_ID }}">
+
+            <select class="form-select form-select-sm" name="grade" required>
+              <option value="">--</option>
+              {% for gr in ['A','A-','B+','B','B-','C+','C','C-','D+','D','D-','F'] %}
+              <option value="{{ gr }}"
+                {% if s.grade == gr %}selected{% endif %}>
+                {{ gr }}
+              </option>
+              {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-success btn-sm">Save</button>
+          </form>
+        </td>
+
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">No students enrolled.
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

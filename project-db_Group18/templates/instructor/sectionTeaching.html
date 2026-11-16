@@ -1,0 +1,102 @@
+{% extends "include/base.html" %}
+{% set active = "teaching" %}
+{% block title %}My Teaching Schedule{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-1">Check Teaching Sections by Semester</h2>
+<p><h2 class="page-sub mb-4">Search which sections you are assigned to teach.</h2>
+
+<div class="card mb-4">
+  <div class="card-header fw-bold">Search by Semester</div>
+  <div class="card-body">
+    <form method="POST" action="/instructor/teaching">
+      <div class="row g-2 align-items-end">
+
+        <div class="col-sm-4">
+          <label class="form-label fw-semibold">Semester</label>
+          <select class="form-select" name="semester" required>
+            <option value="">-- Select --</option>
+            {% for sem in ['Spring','Summer','Fall'] %}
+            <option value="{{ sem }}"
+              {% if semester is defined and semester == sem %}selected{% endif %}>
+              {{ sem }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-sm-4">
+          <label class="form-label fw-semibold">Year</label>
+          <input type="number" class="form-control" name="year"
+                 value="{{ year if year is defined else '' }}" required>
+        </div>
+
+        <div class="col-sm-4">
+          <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if data is defined %}
+<div class="card">
+  <div class="card-header fw-bold">
+    Results
+    {% if semester is defined and year is defined %}
+      - {{ semester }} {{ year }}
+    {% endif %}
+  </div>
+
+  {% if data %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Section ID</th>
+          <th>Course ID</th>
+          <th>Title</th>
+          <th>Semester</th>
+          <th>Year</th>
+          <th>Building</th>
+          <th>Room</th>
+          <th>Day</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for row in data %}
+      <tr>
+        <td><code>{{ row.sec_ID }}</code></td>
+        <td><code>{{ row.course_ID }}</code></td>
+        <td><strong>{{ row.title }}</strong></td>
+        <td><span class="badge bg-info text-dark">{{ row.semester }}</span></td>
+        <td>{{ row.year }}</td>
+        <td>{{ row.building or '—' }}</td>
+        <td>{{ row.room_number or '—' }}</td>
+        <td>{{ row.day or '—' }}</td>
+        <td>
+          {% if row.start_hr is not none and row.end_hr is not none %}
+            {{ "%02d"|format(row.start_hr|int) }}:00 -
+            {{ "%02d"|format(row.end_hr|int) }}:00
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">
+    No sections found.
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

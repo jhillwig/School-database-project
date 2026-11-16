@@ -1,0 +1,143 @@
+<!-- Searches -->
+<!-- Section info -->
+
+{% extends "include/base.html" %}
+{% set active = "section" %}
+{% block title %}Section Information{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">Section Information</h2>
+<p><h2 class="page-sub mb-4">Look up detailed information about any course section.</h2>
+ 
+<!-- SEARCH FORM -->
+<div class="card mb-4">
+  <div class="card-header fw-bold">Search Section</div>
+  <div class="card-body">
+    <form method="POST" action="/student/section">
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-5">
+          <label class="form-label fw-semibold">Section ID</label>
+          <input type="text" class="form-control" name="sec_id"
+                 placeholder="e.g. SEC001"
+                 value="{{ sec_id if sec_id is defined else '' }}"
+                 maxlength="8" required>
+        </div>
+        <div class="col-sm-4">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-search me-1"></i>Look Up
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<!-- RESULTS -->
+{% if section is defined %}
+  {% if section %}
+  <div class="row g-4">
+ 
+    <!-- SECTION DETAILS -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header fw-bold">
+          <i class="bi bi-layout-text-window me-2"></i>Section Details
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <tbody>
+              <tr><th style="width:40%" class="ps-3">Section ID</th><td><code>{{ section.sec_ID }}</code></td></tr>
+              <tr><th class="ps-3">Course ID</th><td><code>{{ section.course_ID }}</code></td></tr>
+              <tr><th class="ps-3">Course Title</th><td><strong>{{ section.title or '—' }}</strong></td></tr>
+              <tr><th class="ps-3">Credits</th><td>{{ section.credits or '—' }}</td></tr>
+              <tr><th class="ps-3">Department</th><td><span class="badge bg-info text-dark">{{ section.dept_name or '—' }}</span></td></tr>
+              <tr><th class="ps-3">Semester</th><td><span class="badge bg-primary">{{ section.semester }}</span></td></tr>
+              <tr><th class="ps-3">Year</th><td>{{ section.year }}</td></tr>
+              <tr><th class="ps-3">Building</th><td>{{ section.building or '—' }}</td></tr>
+              <tr><th class="ps-3">Room</th><td>{{ section.room_number or '—' }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- TIME SLOT & INSTRUCTOR -->
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header fw-bold">
+          <i class="bi bi-clock me-2"></i>Schedule
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <tbody>
+              <tr><th style="width:40%" class="ps-3">Time Slot ID</th><td><code>{{ section.time_slot_ID or '—' }}</code></td></tr>
+              {% if section.time_slot_ID and section.day is not none %}
+              <tr><th class="ps-3">Day</th>
+                <td>
+                  {% set day_names = {'M':'Monday','T':'Tuesday','W':'Wednesday','R':'Thursday','F':'Friday','S':'Saturday'} %}
+                  {{ day_names.get(section.day, section.day) }}
+                </td>
+              </tr>
+              <tr><th class="ps-3">Start Time</th><td>{{ "%02d"|format(section.start_hr|int) }}:00</td></tr>
+              <tr><th class="ps-3">End Time</th><td>{{ "%02d"|format(section.end_hr|int) }}:00</td></tr>
+              {% else %}
+              <tr><td colspan="2" class="text-muted ps-3">No time slot assigned.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-header fw-bold">
+          <i class="bi bi-person-badge me-2"></i>Instructor
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <tbody>
+              {% if instructor %}
+              <tr><th style="width:40%" class="ps-3">Name</th><td>{{ instructor[0] }}</td></tr>
+              <tr><th class="ps-3">Department</th><td><span class="badge bg-warning text-dark">{{ instructor[1] }}</span></td></tr>
+              {% else %}
+              <tr><td colspan="2" class="text-muted ps-3">No instructor assigned.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- ENROLLMENT STATUS -->
+    <div class="col-12">
+      <div class="alert {% if is_enrolled %}alert-success{% else %}alert-secondary{% endif %} d-flex align-items-center gap-2">
+        {% if is_enrolled %}
+          <i class="bi bi-check-circle-fill fs-5"></i>
+          <span>You are <strong>currently enrolled</strong> in this section.</span>
+          <form method="POST" action="/student/classes" class="ms-auto">
+            <input type="hidden" name="action" value="drop">
+            <input type="hidden" name="sec_id" value="{{ section.sec_ID }}">
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Drop this section?')">Drop Section</button>
+          </form>
+        {% else %}
+          <i class="bi bi-info-circle-fill fs-5"></i>
+          <span>You are <strong>not enrolled</strong> in this section.</span>
+          <form method="POST" action="/student/classes" class="ms-auto">
+            <input type="hidden" name="action" value="register">
+            <input type="hidden" name="sec_id" value="{{ section.sec_ID }}">
+            <button type="submit" class="btn btn-success btn-sm"
+              onclick="return confirm('Register for this section?')">Register</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+ 
+  </div>
+  {% else %}
+  <div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Section <strong>{{ sec_id }}</strong> was not found.
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

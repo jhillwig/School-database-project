@@ -1,0 +1,79 @@
+<!-- Assign, modify, remove instructor to classes -->
+{% extends "include/base.html" %}
+{% set active = "assign" %}
+{% block title %}Assign Instructors to Sections{% endblock %}
+ 
+{% block content %}
+<h2 class="fw-bold mb-1">Assign / Remove Teachers</h2>
+<p><h2 class="text-body-secondary mb-4">Assign instructors to sections or remove existing assignments.</h2>
+ 
+<div class="card mb-4">
+  <div class="card-header fw-bold">Assign Instructor to Section</div>
+  <div class="card-body">
+    <form method="POST" action="/admin/assign">
+      <input type="hidden" name="action" value="assign">
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-5">
+          <label class="form-label fw-semibold">Instructor</label>
+          <select class="form-select" name="i_id" required>
+            <option value="">-- Select Instructor --</option>
+            {% for i in instructors %}
+            <option value="{{ i.i_ID }}">{{ i.i_ID }} — {{ i.name }} ({{ i.dept_name }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-5">
+          <label class="form-label fw-semibold">Section</label>
+          <select class="form-select" name="sec_id" required>
+            <option value="">-- Select Section --</option>
+            {% for s in sections %}
+            <option value="{{ s.sec_ID }}">{{ s.sec_ID }} | {{ s.course_ID }} — {{ s.semester }} {{ s.year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <button type="submit" class="btn btn-success w-100">Assign</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<div class="card">
+  <div class="card-header fw-bold">Current Assignments ({{ assigns|length }})</div>
+  {% if assigns %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr><th>Instructor ID</th><th>Name</th><th>Section</th><th>Course</th><th>Semester</th><th>Year</th><th>Remove</th></tr>
+      </thead>
+      <tbody>
+      {% for row in assigns %}
+      <tr>
+        <td><code>{{ row.i_ID }}</code></td>
+        <td>{{ row.instructor_name }}</td>
+        <td><code>{{ row.sec_ID }}</code></td>
+        <td>
+          <code class="small">{{ row.course_ID }}</code>
+          {% if row.title %}<br><small class="text-body-secondary">{{ row.title }}</small>{% endif %}
+        </td>
+        <td><span class="badge bg-primary">{{ row.semester }}</span></td>
+        <td>
+          <form method="POST" action="/admin/assign">
+            <input type="hidden" name="action" value="remove">
+            <input type="hidden" name="i_id"   value="{{ row[0] }}">
+            <input type="hidden" name="sec_id"  value="{{ row[2] }}">
+            <button type="submit" class="btn btn-danger btn-sm"
+              onclick="return confirm('Remove {{ row[1] }} from section {{ row[2] }}?')">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">No assignments yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

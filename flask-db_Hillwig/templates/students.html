@@ -1,0 +1,50 @@
+{% extends '/include/layout.html' %}
+
+{% block content %}
+    <div class="container"> 
+        <h1>
+            Student entries
+        </h1>
+    </div>
+    <div class = "container">
+        {% if data|length  > 0 %}        
+            <table  cellpadding="5" cellspacing="5" class="table table-hover">
+                <tr><th>ID</th><th>Car</th><th>Department</th><th>Credits</th><th>Options</th><th>Schedule</th></tr>	
+                {% for row in data %}
+                <tr>
+                    {% for d in row %}
+                    <td>{{d}}</td>
+                    
+                    {% endfor %}
+                    
+                    </td>
+                    <td>
+                        <form action="/schedule?id={{row[0]}}" method="POST">                        
+                            <input type="hidden" name="ID" value="{{ row[0] }}">        
+                            <button type="submit" class="btn btn-outline-danger"> Schedule
+                                
+                            </button>                                   
+                        </form>
+                    </td>
+
+                    <td>
+                        <form action="/student" method="POST">                        
+                            <input type="hidden" name="ID" value="{{ row[0] }}">        
+                            <button type="submit" class="btn btn-outline-danger"> Delete
+                                
+                            </button>                                   
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <div class="container"> 
+        <h1>
+            No students to show
+        </h1>
+    </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

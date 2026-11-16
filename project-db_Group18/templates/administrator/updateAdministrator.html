@@ -1,0 +1,57 @@
+<!-- Updates personal info except ID -->
+{% extends "include/base.html" %}
+{% set active = "profile" %}
+{% block title %}My Profile{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">My Administrator Profile</h2>
+<p><h2 class="page-sub mb-4">Update your login credentials. Your administrator ID cannot be changed.</h2>
+ 
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header fw-bold">Update Personal Information</div>
+      <div class="card-body">
+        {% if success %}
+        <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Profile updated successfully.</div>
+        {% endif %}
+ 
+        <form method="POST" action="/admin/profile" onsubmit="return checkPw()">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Administrator ID <span class="text-muted">(cannot change)</span></label>
+            <input type="text" class="form-control bg-light" value="{{ session.get('user_id') }}" readonly>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <input type="text" class="form-control" name="username"
+                   value="{{ session.get('username') }}" maxlength="30">
+            <div class="form-text">Leave blank to keep current username.</div>
+          </div>
+          <hr>
+          <p class="text-muted small">Leave password fields blank to keep your current password.</p>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">New Password</label>
+            <input type="password" class="form-control" name="new_password" id="newPw" placeholder="Enter new password">
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Confirm New Password</label>
+            <input type="password" class="form-control" id="confirmPw" placeholder="Confirm new password">
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ 
+{% block scripts %}
+<script>
+function checkPw() {
+  const np = document.getElementById('newPw').value;
+  const cp = document.getElementById('confirmPw').value;
+  if (np && np !== cp) { alert('Passwords do not match!'); return false; }
+  return true;
+}
+</script>
+{% endblock %}

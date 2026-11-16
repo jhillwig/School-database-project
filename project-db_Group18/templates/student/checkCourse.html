@@ -1,0 +1,118 @@
+<!-- Checks courses based on semester including status -->
+{% extends "include/base.html" %}
+{% set active = "courses" %}
+{% block title %}Browse Courses by Semester{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">Browse Courses by Semester</h2>
+<p><h2 class="page-sub mb-4">Search available sections by semester and year. Your enrollment status is shown for each.</h2>
+ 
+<!-- SEARCH FORM -->
+<div class="card mb-4">
+  <div class="card-header fw-bold">Search Sections</div>
+  <div class="card-body">
+    <form method="POST" action="/student/courses">
+      <div class="row g-2 align-items-end">
+        <div class="col-sm-4">
+          <label class="form-label fw-semibold">Semester</label>
+          <select class="form-select" name="semester" required>
+            <option value="">-- Select --</option>
+            {% for sem in ['Spring','Summer','Fall'] %}
+            <option value="{{ sem }}"
+              {% if semester is defined and semester == sem %}selected{% endif %}>{{ sem }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-4">
+          <label class="form-label fw-semibold">Year</label>
+          <input type="number" class="form-control" name="year" min="2020" max="2030"
+                 placeholder="e.g. 2025" value="{{ year if year is defined else '' }}" required>
+        </div>
+        <div class="col-sm-4">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-search me-1"></i>Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<!-- RESULTS -->
+{% if data is defined %}
+<div class="card">
+  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+    Sections for
+    {% if semester is defined and year is defined %}
+      <strong>{{ semester }} {{ year }}</strong>
+    {% endif %}
+    <span class="badge bg-primary">{{ data|length }} section{{ 's' if data|length != 1 }}</span>
+  </div>
+  {% if data %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Section ID</th><th>Course</th><th>Title</th><th>Credits</th>
+          <th>Dept</th><th>Building</th><th>Room</th><th>Day</th><th>Time</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in data %}
+      {% set enrolled = row.sec_ID in enrolled_ids %}
+      <tr class="{{ 'table-success' if enrolled }}">
+        <td><code>{{ row.sec_ID }}</code></td>
+        <td><code>{{ row.course_ID }}</code></td>
+        <td><strong>{{ row.title }}</strong></td>
+        <td>{{ row.credits }}</td>
+        <td><span class="badge bg-warning text-dark">{{ row.dept_name }}</span></td>
+        <td>{{ row.building or '—' }}</td>
+        <td>{{ row.room_number or '—' }}</td>
+        <td>{{ row.day or '—' }}</td>
+        <td>
+          {% if row.start_hr is not none and row.end_hr is not none %}
+            {{ "%02d"|format(row.start_hr|int) }}:00 - {{ "%02d"|format(row.end_hr|int) }}:00
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if enrolled %}
+            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Enrolled</span>
+          {% else %}
+            <span class="badge bg-secondary">Not Enrolled</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if enrolled %}
+            <form method="POST" action="/student/classes">
+              <input type="hidden" name="action" value="drop">
+              <input type="hidden" name="sec_id" value="{{ row.sec_ID }}">
+              <button type="submit" class="btn btn-danger btn-sm"
+                onclick="return confirm('Drop {{ row.title }} ({{ row.sec_ID }})?')">Drop</button>
+            </form>
+          {% else %}
+            <form method="POST" action="/student/classes">
+              <input type="hidden" name="action" value="register">
+              <input type="hidden" name="sec_id" value="{{ row.sec_ID }}">
+              <button type="submit" class="btn btn-success btn-sm"
+                onclick="return confirm('Register for {{ row.title }} ({{ row.sec_ID }})?')">Register</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-muted small">
+    <span class="badge bg-success me-1"></span> Green rows = sections you are currently enrolled in.
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">
+    No sections found for
+    {{ semester if semester is defined }} {{ year if year is defined }}.
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+ 

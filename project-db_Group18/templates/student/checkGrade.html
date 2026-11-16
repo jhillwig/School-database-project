@@ -1,0 +1,97 @@
+<!-- Checks final grade for classes -->
+{% extends "include/base.html" %}
+{% set active = "grades" %}
+{% block title %}My Grades{% endblock %}
+ 
+{% block content %}
+<h2 class="page-title mb-1">My Final Grades</h2>
+<p><h2 class="page-sub mb-4">View your grade record for all enrolled and completed courses.</h2>
+ 
+<!-- GPA SUMMARY -->
+{% if grades %}
+{% set graded = grades | selectattr(5) | list %}
+{% set total_credits = 0 %}
+{% set grade_points = 0 %}
+{% set gpa_map = {'A':4.0,'A-':3.7,'B+':3.3,'B':3.0,'B-':2.7,'C+':2.3,'C':2.0,'C-':1.7,'D+':1.3,'D':1.0,'D-':0.7,'F':0.0} %}
+ 
+<div class="row g-3 mb-4">
+  <div class="col-sm-4 col-md-3">
+    <div class="card border-primary p-3" style="border-top:4px solid;">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem;letter-spacing:1px;">Total Courses</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ grades|length }}</div>
+    </div>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <div class="card border-success p-3" style="border-top:4px solid;">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem;letter-spacing:1px;">Graded</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ graded|length }}</div>
+    </div>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <div class="card border-warning p-3" style="border-top:4px solid;">
+      <div class="text-uppercase text-muted fw-bold" style="font-size:.7rem;letter-spacing:1px;">In Progress</div>
+      <div class="fw-bold mt-1" style="font-size:2rem;">{{ grades|length - graded|length }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+ 
+<div class="card">
+  <div class="card-header fw-bold">Grade Report</div>
+  {% if grades %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Course ID</th><th>Title</th><th>Credits</th>
+          <th>Semester</th><th>Year</th><th>Final Grade</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for g in grades %}
+      <tr>
+        <td><code>{{ g.course_ID }}</code></td>
+        <td><strong>{{ g.title }}</strong></td>
+        <td>{{ g.credits }}</td>
+        <td><span class="badge bg-info text-dark">{{ g.semester }}</span></td>
+        <td>{{ g.year or '—' }}</td>
+        <td>
+          {% if g.grade %}
+            <span class="fw-bold fs-5
+              {% if g.grade.startswith('A') %}text-success
+              {% elif g.grade.startswith('B') %}text-primary
+              {% elif g.grade.startswith('C') %}text-warning
+              {% else %}text-danger{% endif %}">
+              {{ g.grade }}
+            </span>
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if g.grade %}
+            {% if g.grade == 'F' %}
+              <span class="badge bg-danger">Failed</span>
+            {% else %}
+              <span class="badge bg-success">Completed</span>
+            {% endif %}
+          {% else %}
+            <span class="badge bg-warning text-dark">In Progress</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-muted small">
+    Grades are submitted by your instructor. Contact your advisor if you have questions.
+  </div>
+  {% else %}
+  <div class="card-body text-center text-body-secondary">
+    No grade records found. Enroll in classes to get started.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+ 

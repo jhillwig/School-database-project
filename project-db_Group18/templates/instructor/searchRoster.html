@@ -1,0 +1,41 @@
+{% extends "include/base.html" %}
+{% set active = "roster" %}
+{% block title %}Section Roster{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-1">Check Section Roster</h2>
+
+<div class="card mb-4">
+  <div class="card-header fw-bold">Select a Section</div>
+  <div class="card-body">
+    <form method="POST" action="/instructor/roster">
+      <input type="hidden" name="action" value="load">
+
+      <select class="form-select" name="sec_id" required>
+        <option value="">-- Choose --</option>
+        {% for s in my_sections %}
+        <option value="{{ s.sec_ID }}"
+          {% if selected_sec is defined and selected_sec == s.sec_ID %}selected{% endif %}>
+          {{ s.sec_ID }} | {{ s.course_ID }} - {{ s.semester }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <button class="btn btn-primary mt-2">View</button>
+    </form>
+  </div>
+</div>
+
+{% if data is defined %}
+<table class="table">
+  {% for s in data %}
+  <tr>
+    <td>{{ s.s_ID }}</td>
+    <td>{{ s.name }}</td>
+    <td>{{ s.dept_name }}</td>
+    <td>{% if s.grade %}{{ s.grade }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
